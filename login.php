@@ -26,7 +26,7 @@ try{
     
             if($result->num_rows == 1){
                 // Login success
-                header("Location: success.html");
+                header("Location: success.php?user=" . $username);
                 exit();
             }
             else{
@@ -87,7 +87,9 @@ try{
                 $insertquery = "INSERT INTO login (username, password) VALUES('$username', '$password')";
                 // $insertquery = "INSERT INTO login (username, password) VALUES($username, $password)";
                 $conn->query($insertquery);
-                header("Location: success.html");
+                $insertquery = "INSERT INTO user_info (username, balance, rating, products_bought, products_sold) VALUES('$username', 0, 0, 0, 0)";
+                $conn->query($insertquery);
+                header("Location: success.php?user=" . $username);
                 exit();
             }
     
