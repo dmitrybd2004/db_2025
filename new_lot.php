@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome</title>
+        <title>Fill your lot form</title>
     </head>
     <body>
         <?php
@@ -24,51 +24,32 @@
         
                 }
 
-                echo "Welcome: ". htmlspecialchars($_GET['user']) . "</p>";
-
                 $name = htmlspecialchars($_GET['user']);
-                $infoquery = "SELECT * FROM user_info WHERE user_info.username='$name'";
-                $result = $conn->query($infoquery);
-                $info = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
             }
         ?>
         <a href="success.php?user=<?php echo htmlspecialchars($name); ?>">
             <button>Home</button>
         </a>
-        <br>
-        <?php
-        if (isset($_GET['user'])) {
-            echo "Your balance is: " . $info[0]['balance'];
-        }
-        ?>
-        <br>
-        <?php
-        if (isset($_GET['user'])) {
-            echo "Your rating is: " . $info[0]['rating'];
-        }
-        ?>
-        <br>
-        <?php
-        if (isset($_GET['user'])) {
-            echo "You bought " . $info[0]['products_bought'] . " items";
-        }
-        ?>
-        <br>
-        <?php
-        if (isset($_GET['user'])) {
-            echo "You sold " . $info[0]['products_sold'] . " items";
-        }
-        ?>
-        <br>
-        <form action="deposit.php?user=<?php echo htmlspecialchars($name); ?>" method="POST">
+        <form action="create_lot.php?user=<?php echo htmlspecialchars($name); ?>" method="POST" enctype="multipart/form-data">
+            <input 
+                type="text" 
+                name="item_name" 
+                class="form-control" 
+                placeholder="Enter the item name"
+            /><br />
             <input 
                 type="number" 
-                name="amount" 
+                name="price" 
                 class="form-control" 
-                placeholder="Enter deposit"
+                placeholder="Enter the price"
             /><br />
-                <input type="submit" name="deposit_btn" value="Add funds" class="btn btn-success">
+            <input 
+                type="file" 
+                name="item_image"
+                accept="image/png, image/jpeg, image/jpg" 
+            /><br />
+            <input type="submit" name="create_form_btn" value="Create lot" class="btn btn-success">
         </form>
         <?php
             if (isset($_GET['error'])) {
