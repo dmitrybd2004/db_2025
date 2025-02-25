@@ -75,5 +75,58 @@
                 echo "<p style='color:red;'>" ."Error: ". htmlspecialchars($_GET['error']) . "</p>";
             }
         ?>
+        <h2>Bought Items</h2>
+        <?php
+        $query = "SELECT * FROM lot WHERE buyer_name = '$name'";
+        $result = $conn->query($query);
+        if ($result->num_rows > 0) {
+            // Display each item
+            while($row = $result->fetch_assoc()) {
+                echo "<div class='item'>";
+                echo "<img src='image/" . htmlspecialchars($row['image_name']) . "' alt='Item Image'>";
+                echo "<h3>" . htmlspecialchars($row['item_name']) . "</h3>";
+                if($row['positive_review'] == 0){
+                    echo"No positive review";
+                }
+                else{
+                    echo"Positively reviewed";
+                }
+                echo "<form action='leave_review.php' method='post'>";
+                echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
+                echo "<input type='hidden' name='username' value='" . $name . "'>";
+                echo "<button type='submit' class='btn btn-success'>Change review</button>";
+                echo "</form>";
+                echo "</div>";
+            }
+        } else {
+            echo "<p>No items were bought.</p>";
+        }
+        ?>
+
+        <h2>Selling items</h2>
+        <?php
+        $query = "SELECT * FROM lot WHERE seller_name = '$name' AND buyer_name IS NULL";
+        $result = $conn->query($query);
+        if ($result->num_rows > 0) {
+            // Display each item
+            while($row = $result->fetch_assoc()) {
+                echo "<div class='item'>";
+                echo "<img src='image/" . htmlspecialchars($row['image_name']) . "' alt='Item Image'>";
+                echo "<h3>" . htmlspecialchars($row['item_name']) . "</h3>";
+                echo "<p>Price: $" . number_format($row['price'], 2) . "</p>";
+                echo "<form action='delete_item.php' method='post'>";
+                echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
+                echo "<input type='hidden' name='username' value='" . $name . "'>";
+                echo "<button type='submit' class='btn btn-success'>Remove from sale</button>";
+                echo "</form>";
+                echo "</div>";
+            }
+        } else {
+            echo "<p>You don't sell any items.</p>";
+        }
+
+        // Close the connection
+        $conn->close();
+        ?>
     </body>
 </html>
