@@ -1,8 +1,9 @@
 <?php
+session_start();
 try{
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         //retrieve form data
-        $username = htmlspecialchars($_GET['user']);
+        $username = $_SESSION["username"];
         $amount = $_POST['amount'];
 
         if ($amount == '') {
@@ -33,7 +34,7 @@ try{
         $query = "UPDATE user_info SET balance = $new_balance WHERE user_info.username='$username'";
         $conn->query($query);
 
-        header("Location: user_info.php?user=" . $username);
+        header("Location: user_info.php");
         exit();
 
         $conn->close();
@@ -41,7 +42,7 @@ try{
 }
 catch (Exception $e) {
     // Redirect back to the form with an error message
-    header("Location: user_info.php?user=" . $username . "&error=" . urlencode($e->getMessage()));
+    header("Location: user_info.php?error=" . urlencode($e->getMessage()));
     exit();
 }
 

@@ -1,7 +1,6 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    $name = $_POST['username'];
     $item_id = $_POST['item_id'];
 
 
@@ -41,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conn->query($query);       
     }
 
-    header("Location:user_info.php?user=" . $name);
+    header("Location:user_info.php");
     exit();
 
     $conn->close();

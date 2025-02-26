@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -8,7 +12,7 @@
     </head>
     <body>
         <?php
-            if (isset($_GET['user'])) {
+            if (isset($_SESSION["username"])) {
         
                 //Database connection
         
@@ -24,47 +28,49 @@
         
                 }
 
-                echo "Welcome: ". htmlspecialchars($_GET['user']) . "</p>";
-
-                $name = htmlspecialchars($_GET['user']);
+                $name = $_SESSION["username"];
                 $infoquery = "SELECT * FROM user_info WHERE user_info.username='$name'";
                 $result = $conn->query($infoquery);
                 $info = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+                echo "Profile name: ". $name . "</p>";
+
             }
         ?>
-        <a href="success.php?user=<?php echo htmlspecialchars($name); ?>">
+        <a href="success.php">
             <button>Home</button>
         </a>
         <br>
         <?php
-        if (isset($_GET['user'])) {
+        if (isset($_SESSION["username"])) {
             echo "Your balance is: " . $info[0]['balance'];
         }
         ?>
         <br>
         <?php
-        if (isset($_GET['user'])) {
+        if (isset($_SESSION["username"])) {
             echo "Your rating is: " . $info[0]['rating'];
         }
         ?>
         <br>
         <?php
-        if (isset($_GET['user'])) {
+        if (isset($_SESSION["username"])) {
             echo "You bought " . $info[0]['products_bought'] . " items";
         }
         ?>
         <br>
         <?php
-        if (isset($_GET['user'])) {
+        if (isset($_SESSION["username"])) {
             echo "You sold " . $info[0]['products_sold'] . " items";
         }
         ?>
         <br>
-        <form action="deposit.php?user=<?php echo htmlspecialchars($name); ?>" method="POST">
+        <form action="deposit.php" method="POST">
             <input 
-                type="number" 
-                name="amount" 
+                type="number"
+                step="0.01"
+                min = 0.01
+                name="amount"
                 class="form-control" 
                 placeholder="Enter deposit"
             /><br />
@@ -93,7 +99,6 @@
                 }
                 echo "<form action='leave_review.php' method='post'>";
                 echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
-                echo "<input type='hidden' name='username' value='" . $name . "'>";
                 echo "<button type='submit' class='btn btn-success'>Change review</button>";
                 echo "</form>";
                 echo "</div>";
@@ -116,7 +121,6 @@
                 echo "<p>Price: $" . number_format($row['price'], 2) . "</p>";
                 echo "<form action='delete_item.php' method='post'>";
                 echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
-                echo "<input type='hidden' name='username' value='" . $name . "'>";
                 echo "<button type='submit' class='btn btn-success'>Remove from sale</button>";
                 echo "</form>";
                 echo "</div>";

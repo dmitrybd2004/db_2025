@@ -1,6 +1,5 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    print_r($_POST);
     $item_name = $_POST['item_name'];
     $item_id = $_POST['item_id'];
     $price = $_POST['price'];
@@ -41,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $conn->query($query);
 
-    header("Location:success.php?user=" . $buyer_name);
+    header("Location:success.php");
     exit();
 
     $conn->close();

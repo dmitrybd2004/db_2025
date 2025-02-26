@@ -1,11 +1,18 @@
 <?php
+session_start();
 try{
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(isset($_FILES["item_image"])){
             //retrieve form data
 
-            print_r($_FILES);
-            $username = htmlspecialchars($_GET['user']);
+            if(empty($_POST['item_name'])){
+                throw new Exception("Please enter the item name");
+            }
+            if(empty($_FILES['item_image'])){
+                throw new Exception("Please upload the image");
+            }           
+            $username = $_SESSION["username"];
+
             $name = $_POST['item_name']; 
             $price = $_POST['price'];
             $tmpname = $_FILES["item_image"]["tmp_name"];
@@ -25,23 +32,20 @@ try{
                 die("Connetion failed: ". $conn->connect_error);
     
             }
-    
-            echo $file_name;
-
             $query = "INSERT INTO lot (seller_name, item_name, price, image_name, positive_review) VALUES('$username', '$name', $price, '$file_name', 0)";
             $result = $conn->query($query);
 
             move_uploaded_file($tmpname, $target_file);
     
             $conn->close();
-            header("Location: success.php?user=" . $username);
+            header("Location: success.php");
             exit();
         }
     }
 }
 catch (Exception $e) {
     // Redirect back to the form with an error message
-    header("Location: index.php?error=" . urlencode($e->getMessage()));
+    header("Location: new_lot.php?error=" . urlencode($e->getMessage()));
     exit();
 }
 

@@ -1,4 +1,5 @@
 <?php
+session_start();
 try{
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(isset($_POST['login_btn'])){
@@ -26,7 +27,8 @@ try{
     
             if($result->num_rows == 1){
                 // Login success
-                header("Location: success.php?user=" . $username);
+                $_SESSION["username"] = $username;
+                header("Location: success.php");
                 exit();
             }
             else{
@@ -67,29 +69,24 @@ try{
             }
 
             $namequery = "SELECT * FROM login WHERE login.username='$username'";
-            $passquery = "SELECT * FROM login WHERE login.password='$password' ";
+            $passquery = "SELECT * FROM login WHERE login.password='$password'";
             $nameresult = $conn->query($namequery);
             $passresult = $conn->query($passquery);
             
             if($nameresult->num_rows > 0){
-                // Name is taken
                 throw new Exception("Username already taken");
-                // header("Location: index.php");
-                // exit();
             }
             else if($passresult->num_rows > 0){
-                // Password is taken
                 throw new Exception("Password already taken");
-                // header("Location: index.php");
-                // exit();
             }
             else{
                 $insertquery = "INSERT INTO login (username, password) VALUES('$username', '$password')";
-                // $insertquery = "INSERT INTO login (username, password) VALUES($username, $password)";
                 $conn->query($insertquery);
                 $insertquery = "INSERT INTO user_info (username, balance, rating, products_bought, products_sold) VALUES('$username', 0, 0, 0, 0)";
                 $conn->query($insertquery);
-                header("Location: success.php?user=" . $username);
+
+                $_SESSION["username"] = $username;
+                header("Location: success.php");
                 exit();
             }
     

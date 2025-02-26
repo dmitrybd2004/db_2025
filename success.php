@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -36,25 +40,44 @@
     
             }
 
-            if (isset($_GET['user'])) {
-                echo "Welcome: ". htmlspecialchars($_GET['user']) . "</p>";
-                $name = htmlspecialchars($_GET['user']); // Retrieves everything after "?"
+            if (isset($_SESSION["username"])) {
+                $name = $_SESSION["username"]; // Retrieves everything after "?"
+                echo "Welcome: ". $name . "</p>";
             }
+            $query = "SELECT balance FROM user_info WHERE username = '$name'";
+            $result = $conn->query($query);
+        
+            $info = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            $balance = $info[0]['balance'];
+            echo "Your balance is: " . $balance;
         ?>
-
-        <a href="user_info.php?user=<?php echo htmlspecialchars($name); ?>">
+        <br />
+        <a href="user_info.php">
             <button>User info</button>
         </a>
         <br />
-        <a href="new_lot.php?user=<?php echo htmlspecialchars($name); ?>">
+        <a href="new_lot.php">
             <button>Post your item</button>
         </a>
 
         <form method="GET" action="">
-            <input type="hidden" name="user" value="<?php echo htmlspecialchars($name); ?>">
-            <input type="number" name="min_price" placeholder="Minimal price">
-            <input type="number" name="max_price" placeholder="Maximal price">
-            <input type="number" name="min_rating" placeholder="Minimal rating">
+            <input 
+                type="number"
+                step="0.01"
+                min = 0
+                name="min_price" 
+                placeholder="Minimal price">
+            <input 
+                type="number"
+                step="0.01"
+                min = 0
+                name="max_price"
+                placeholder="Maximal price">
+            <input 
+                type="number" 
+                name="min_rating"
+                min = 0
+                placeholder="Minimal rating">
             <input type="text" name="search" placeholder="Search items...">
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
@@ -101,7 +124,12 @@
                 echo "<input type='hidden' name='price' value='" . $row['price'] . "'>";
                 echo "<input type='hidden' name='seller_name' value='" . ($row['seller_name']) . "'>";
                 echo "<input type='hidden' name='buyer_name' value='" . $name . "'>";
-                echo "<button type='submit' class='btn btn-success'>Buy</button>";
+                if($row['price']<=$balance){
+                    echo "<button type='submit' class='btn btn-success'>Buy</button>";
+                }
+                else{
+                    echo "<button type='submit' class='btn btn-success' disabled>Buy</button>";
+                }
                 echo "</form>";
                 echo "</div>";
             }
