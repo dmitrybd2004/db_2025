@@ -34,7 +34,7 @@ try{
         $query = "UPDATE user_info SET balance = $new_balance WHERE user_info.username='$username'";
         $conn->query($query);
 
-        header("Location: user_info.php");
+        header("Location: user_info.php?type=none");
         exit();
 
         $conn->close();
@@ -42,7 +42,7 @@ try{
 }
 catch (Exception $e) {
     // Redirect back to the form with an error message
-    header("Location: user_info.php?error=" . urlencode($e->getMessage()));
+    header("Location: user_info.php?type=none&error=" . urlencode($e->getMessage()));
     exit();
 }
 
