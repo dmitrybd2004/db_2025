@@ -2,7 +2,6 @@
 session_start();
 try{
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        //retrieve form data
         $username = $_SESSION["username"];
         $amount = $_POST['amount'];
 
@@ -10,7 +9,6 @@ try{
             throw new Exception("Please enter the amount of funds");
         }
 
-        //Database connection
 
         $host = "localhost";
         $dbusername = "root";
@@ -23,7 +21,6 @@ try{
             die("Connetion failed: ". $conn->connect_error);
         }
 
-        // validate login authentication
         $query = "SELECT balance FROM user_info WHERE user_info.username='$username'";
         $result = $conn->query($query);
         
@@ -34,15 +31,14 @@ try{
         $query = "UPDATE user_info SET balance = $new_balance WHERE user_info.username='$username'";
         $conn->query($query);
 
-        header("Location: user_info.php?type=none");
+        header("Location: user_info.php?type=buy");
         exit();
 
         $conn->close();
     }
 }
 catch (Exception $e) {
-    // Redirect back to the form with an error message
-    header("Location: user_info.php?type=none&error=" . urlencode($e->getMessage()));
+    header("Location: user_info.php?type=buy&error=" . urlencode($e->getMessage()));
     exit();
 }
 

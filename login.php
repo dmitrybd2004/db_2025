@@ -3,11 +3,8 @@ session_start();
 try{
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(isset($_POST['login_btn'])){
-            //retrieve form data
             $username = $_POST['username']; 
             $password = $_POST['password'];
-    
-            //Database connection
     
             $host = "localhost";
             $dbusername = "root";
@@ -20,32 +17,23 @@ try{
                 die("Connetion failed: ". $conn->connect_error);
     
             }
-    
-            // validate login authentication
             $query = "SELECT * FROM login WHERE login.username='$username' AND login.password='$password' ";
             $result = $conn->query($query);
     
             if($result->num_rows == 1){
-                // Login success
                 $_SESSION["username"] = $username;
-                header("Location: success.php");
+                header("Location: home.php");
                 exit();
             }
             else{
-                //Login failed
                 throw new Exception("Wrong username or password");
-                // header("Location: index.html");
-                // exit();
             }
     
             $conn->close();
         }
         else if(isset($_POST['sign_in_btn'])){
-            //retrieve form data
             $username = $_POST['username']; 
             $password = $_POST['password'];
-    
-            //Database connection
     
             $host = "localhost";
             $dbusername = "root";
@@ -58,14 +46,18 @@ try{
                 die("Connetion failed: ". $conn->connect_error);
     
             }
-    
-            // validate login authentication
 
             if ($username == '') {
                 throw new Exception("Please enter the username");
             }
             if ($password == '') {
                 throw new Exception("Please enter the password");
+            }
+            if (strlen($username) > 16) {
+                throw new Exception("Username is too long (more than 16 symbols)");
+            }
+            if (strlen($password) > 16) {
+                throw new Exception("Password is too long (more than 16 symbols)");
             }
 
             $namequery = "SELECT * FROM login WHERE login.username='$username'";
@@ -86,7 +78,7 @@ try{
                 $conn->query($insertquery);
 
                 $_SESSION["username"] = $username;
-                header("Location: success.php");
+                header("Location: home.php");
                 exit();
             }
     
@@ -95,8 +87,7 @@ try{
     }
 }
 catch (Exception $e) {
-    // Redirect back to the form with an error message
-    header("Location: index.php?error=" . urlencode($e->getMessage()));
+    header("Location: login_page.php?error=" . urlencode($e->getMessage()));
     exit();
 }
 

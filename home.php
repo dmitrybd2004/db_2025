@@ -26,10 +26,10 @@ session_start();
             .top-left {
                 display: flex;
                 align-items: center;
-                gap: 15px; /* Add spacing between elements */
+                gap: 15px;
             }
             .logout-btn {
-                margin-left: auto; /* Push Log Out button to the right */
+                margin-left: auto;
             }
             .container {
                 margin-top: 50px;
@@ -79,20 +79,66 @@ session_start();
 
             .search-frame input {
                 width: 100%;
-                margin-bottom: 3px; /* Less vertical space between inputs */
+                margin-bottom: 3px;
                 padding: 4px;
                 font-size: 14px;
             }
 
             .search-frame .form-group input {
-                width: 48%; /* Make min/max price inputs fit on the same line */
+                width: 48%;
             }
 
             .search-frame button {
                 padding: 5px 10px;
                 font-size: 14px;
             }
+            .show-more-container {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            .show-more-btn {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            .sort-search-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 10px;
+                padding-top: 5px;
+            }
+
+            .sort-by {
+                text-align: left;
+            }
+            hr {
+            border: 1;
+            clear:both;
+            display:block;
+            width: 110%;               
+            background-color:black;
+            height: 3px;
+            }
         </style>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                if (sessionStorage.getItem("scrollPosition")) {
+                    setTimeout(() => {
+                        window.scrollTo({ 
+                            top: sessionStorage.getItem("scrollPosition"), 
+                            behavior: "instant"
+                        });
+                        sessionStorage.removeItem("scrollPosition");
+                    }, 0);
+                }
+            });
+
+            function saveScrollPosition() {
+                sessionStorage.setItem("scrollPosition", window.scrollY);
+            }
+        </script>
     </head>
     <body>
         <?php
@@ -123,11 +169,11 @@ session_start();
                 Welcome, <?php echo $name; ?>
                 <br />
                 Balance: $<?php echo $balance ?>
-                <a href="success.php" class="btn btn-light">Home</a>
-                <a href="user_info.php?type=none" class="btn btn-light">User Info</a>
+                <a href="home.php" class="btn btn-light">Home</a>
+                <a href="user_info.php?type=buy" class="btn btn-light">User Info</a>
                 <a href="new_lot.php" class="btn btn-light">Post Your Item</a>
             </div>
-            <a href="index.php" class="btn btn-light logout-btn">Log Out</a>
+            <a href="login_page.php" class="btn btn-light logout-btn">Log Out</a>
         </div>
 
         <div class="container">
@@ -163,7 +209,18 @@ session_start();
                             name="search" 
                             placeholder="Search items..."
                             class="form-control">
-                        <button type="submit" class="btn btn-primary">Search</button>
+
+                        <div class="form-group sort-search-container">
+                            <div class="sort-by">
+                                <select name="sort" id="sort" class="form-control">
+                                    <option value="time">Sort by: Time of publication</option>
+                                    <option value="price_asc">Sort by: Price (Ascending)</option>
+                                    <option value="price_desc">Sort by: Price (Descending)</option>
+                                    <option value="rating">Sort by: Rating</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -171,38 +228,77 @@ session_start();
             <h2>Available Items</h2>
             <div class="items-container">
                 <?php
-                    $query = "SELECT item_id, seller_name, item_name, price, image_name FROM lot WHERE buyer_name IS NULL AND seller_name <> '$name'";
+                    $query = "SELECT lot.item_id, lot.seller_name, lot.item_name, lot.price, lot.image_name, user_info.rating FROM 
+                    lot JOIN user_info ON user_info.username = lot.seller_name
+                    WHERE buyer_name IS NULL AND seller_name <> '$name'";
 
                     if (!empty($_GET['search'])) {
                         $search = htmlspecialchars($_GET['search']);
                         $query .= " AND item_name LIKE '%{$search}%'";
                     }
+                    else{
+                        $search = "";
+                    }
                     if (!empty($_GET['min_price'])) {
                         $min_price = (float) $_GET['min_price'];
                         $query .= " AND price >= $min_price";
+                    }
+                    else{
+                        $min_price = "";
                     }
                     if (!empty($_GET['max_price'])) {
                         $max_price = (float) $_GET['max_price'];
                         $query .= " AND price <= $max_price";
                     }
+                    else{
+                        $max_price = "";
+                    }
                     if (!empty($_GET['min_rating'])) {
-                        $min_rating = (float) $_GET['min_rating'];
+                        $min_rating = (int) $_GET['min_rating'];
                         $query .= " AND lot.seller_name IN (
                             SELECT  user_info.username
                             FROM user_info
                             WHERE rating >= $min_rating
                         )";
                     }
-                    $query .= "ORDER BY item_id DESC LIMIT 30";
-                    
+                    else{
+                        $min_rating = "";
+                    }
+                    if (!empty($_GET['limit'])) {
+                        $limit = (int) $_GET['limit'];
+                    }
+                    else{
+                        $limit = 30;
+                    }
+                    if (!empty($_GET['sort'])) {
+                        $sort_type = htmlspecialchars($_GET['sort']);
+                    }
+                    else{
+                        $sort_type = "time";
+                    }
+
+                    if($sort_type == "time"){
+                        $query .= " ORDER BY item_id DESC";
+                    }
+                    else if ($sort_type == "price_asc"){
+                        $query .= " ORDER BY price";
+                    }
+                    else if ($sort_type == "price_desc"){
+                        $query .= " ORDER BY price DESC";
+                    }
+                    else if ($sort_type == "rating"){
+                        $query .= " ORDER BY rating DESC";
+                    }
+                    $query .= " LIMIT $limit";
                     $result = $conn->query($query);
                     if ($result->num_rows > 0) {
-                        // Display each item
-                        while($row = $result->fetch_assoc()) {
+                        while($row = $result->fetch_assoc()) {                      
                             echo "<div class='item'>";
                             echo "<img src='image/" . htmlspecialchars($row['image_name']) . "' alt='Item Image'>";
-                            echo "<h3>" . htmlspecialchars($row['item_name']) . "</h3>";
-                            echo "<p>Price: $" . number_format($row['price'], 2) . "</p>";
+                            echo "<hr>";
+                            echo "<h4>" . htmlspecialchars($row['item_name']) . "</h4>";
+                            echo "<h4>$" . number_format($row['price'], 2) . "</h4>";
+                            echo "<h5> Sold by: "  . htmlspecialchars($row['seller_name']) . "(" . htmlspecialchars($row['rating']) . ")</h5>";
                             echo "<form action='buy.php' method='post'>";
                             echo "<input type='hidden' name='item_name' value='" . htmlspecialchars($row['item_name']) . "'>";
                             echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
@@ -210,7 +306,7 @@ session_start();
                             echo "<input type='hidden' name='seller_name' value='" . ($row['seller_name']) . "'>";
                             echo "<input type='hidden' name='buyer_name' value='" . $name . "'>";
                             if($row['price']<=$balance){
-                                echo "<button type='submit' class='btn btn-success'>Buy</button>";
+                                echo "<button type='submit' class='btn btn-success' onclick='saveScrollPosition()'>Buy</button>";
                             }
                             else{
                                 echo "<button type='submit' class='btn btn-success' disabled>Buy</button>";
@@ -218,11 +314,21 @@ session_start();
                             echo "</form>";
                             echo "</div>";
                         }
+                        if($result->num_rows > $limit){
+                            $new_limit = $limit + 30;
+                            echo "<div class='show-more-container'>";
+                            echo "<a href='home.php?min_price=$min_price&max_price=$max_price&min_rating=$min_rating&search=$search&limit=$new_limit&sort=$sort_type' class='btn btn-success' onclick='saveScrollPosition()'>Show more</a>";
+                            echo "</div>";
+                        }
+                        else{
+                            echo "<div class='show-more-container'>";
+                            echo "<button type='submit' class='btn btn-success' disabled>No more items available</button>";
+                            echo "</div>";
+                        }
                     } else {
                         echo "<p>No items available.</p>";
                     }
 
-                    // Close the connection
                     $conn->close();
                 ?>
             </div>

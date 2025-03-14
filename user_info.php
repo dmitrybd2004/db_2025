@@ -26,10 +26,10 @@ session_start();
             .top-left {
                 display: flex;
                 align-items: center;
-                gap: 15px; /* Add spacing between elements */
+                gap: 15px;
             }
             .logout-btn {
-                margin-left: auto; /* Push Log Out button to the right */
+                margin-left: auto;
             }
             .container {
                 margin-top: 50px;
@@ -51,29 +51,43 @@ session_start();
                 width: 200px;
                 height: 250px;
             }
+            .item form {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                margin-top: 10px;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .item button {
+                width: 80%;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
             .info-frame {
-                background-color: rgb(137, 191, 249); /* Blue background */
+                background-color: rgb(137, 191, 249);
                 color: black;
                 padding: 20px;
-                width: 100%; /* Full width */
+                width: 100%;
                 display: flex;
                 flex-direction: column;
-                align-items: center; /* Center everything inside */
-                text-align: center; /* Ensure text inside is centered */
+                align-items: center;
+                text-align: center;
             }
 
             .info-content {
-                width: 50%; /* Adjust width for better alignment */
-                max-width: 500px; /* Prevent excessive width */
+                width: 50%;
+                max-width: 500px;
                 display: flex;
                 flex-direction: column;
-                align-items: center; /* Center all elements */
-                text-align: center; /* Ensure text inside is centered */
+                align-items: center;
+                text-align: center;
             }
 
             .info-content input, 
             .info-content .btn {
-                width: 100%; /* Make inputs and buttons the same width */
+                width: 100%;
             }
             .info-frame input {
                 width: 100%;
@@ -88,19 +102,19 @@ session_start();
             }
             .button-group {
                 display: flex;
-                gap: 10px; /* Space between buttons */
-                margin-top: 10px; /* Optional: Add slight space above */
+                gap: 10px;
+                margin-top: 10px;
             }
             .main-content {
                 display: flex;
-                justify-content: center; /* Centers content horizontally */
-                align-items: flex-start; /* Aligns items at the top */
+                justify-content: center;
+                align-items: flex-start;
                 width: 100%;
             }
             .items-section {
                 display: flex;
-                flex-direction: column; /* Stack elements vertically */
-                align-items: center; /* Center content horizontally */
+                flex-direction: column;
+                align-items: center;
                 width: 100%;
                 padding: 20px 0;
             }
@@ -108,25 +122,40 @@ session_start();
             .items-container {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 20px; /* Space between items */
-                justify-content: center; /* Centers items horizontally */
+                gap: 20px;
+                justify-content: center;
                 max-width: 100%;
             }
 
             .items-title {
-                font-size: 28px; /* Make the title larger */
-                font-weight: bold; /* Emphasize the title */
-                text-align: center; /* Ensure text is centered */
-                margin-bottom: 20px; /* Add spacing below the title */
+                font-size: 28px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 20px;
                 width: 100%;
             }
         </style>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                if (sessionStorage.getItem("scrollPosition")) {
+                    setTimeout(() => {
+                        window.scrollTo({ 
+                            top: sessionStorage.getItem("scrollPosition"), 
+                            behavior: "instant"
+                        });
+                        sessionStorage.removeItem("scrollPosition");
+                    }, 0);
+                }
+            });
+
+            function saveScrollPosition() {
+                sessionStorage.setItem("scrollPosition", window.scrollY);
+            }
+        </script>
     </head>
     <body>
         <?php
             if (isset($_SESSION["username"])) {
-        
-                //Database connection
         
                 $host = "localhost";
                 $dbusername = "root";
@@ -154,11 +183,11 @@ session_start();
                 Welcome, <?php echo $name; ?>
                 <br />
                 Balance: $<?php echo $balance ?>
-                <a href="success.php" class="btn btn-light">Home</a>
-                <a href="user_info.php?type=none" class="btn btn-light">User Info</a>
+                <a href="home.php" class="btn btn-light">Home</a>
+                <a href="user_info.php?type=buy" class="btn btn-light">User Info</a>
                 <a href="new_lot.php" class="btn btn-light">Post Your Item</a>
             </div>
-            <a href="index.php" class="btn btn-light logout-btn">Log Out</a>
+            <a href="login_page.php" class="btn btn-light logout-btn">Log Out</a>
         </div>
         <div class="main-container">
             <div class="info-frame">
@@ -190,53 +219,102 @@ session_start();
                     <div class="button-group">
                             <a href="user_info.php?type=buy" class="btn btn-light">Show bought items</a>
                             <br>
-                            <a href="user_info.php?type=sell" class="btn btn-light">Show items sold</a>
+                            <a href="user_info.php?type=sell" class="btn btn-light">Show items you sell</a>
+                            <br>
+                            <a href="user_info.php?type=sold" class="btn btn-light">Show items sold</a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="items-section">
-            <?php
-            if (htmlspecialchars($_GET['type']) == "buy") {
-                echo "<div class='items-title'>Items Bought</div>";
-            } else if (htmlspecialchars($_GET['type']) == "sell") {
-                echo "<div class='items-title'>Items You Sell</div>";
-            }
-            ?>
-
             <div class="items-container">
                 <?php
                 if (htmlspecialchars($_GET['type']) == "buy") {
                     $query = "SELECT * FROM lot WHERE buyer_name = '$name'";
                     $result = $conn->query($query);
                     if ($result->num_rows > 0) {
+                        echo "<div class='items-title'>Items bought</div>";
                         while ($row = $result->fetch_assoc()) {
                             echo "<div class='item'>";
                             echo "<img src='image/" . htmlspecialchars($row['image_name']) . "' alt='Item Image'>";
                             echo "<h3>" . htmlspecialchars($row['item_name']) . "</h3>";
-                            echo $row['positive_review'] == 0 ? "No positive review" : "Positively reviewed";
-                            echo "<form action='leave_review.php' method='post'>";
+                            if($row['review'] == 0){
+                                echo "No review";
+                            }
+                            else if ($row['review'] == 1){
+                                echo "Positively reviewed";
+                            }
+                            else{
+                                echo "Negatively reviewed";
+                            }
+                            echo "<form action='leave_review.php' method='post' onsubmit='saveScrollPosition()'>";
+                            echo "<input type='hidden' name='scrollPosition' class='scrollPosition' />";
                             echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
-                            echo "<button type='submit' class='btn btn-success'>Change review</button>";
+
+                            if($row['review'] == 0 || $row['review'] == -1){
+                                echo "<button type='submit' name='positive_btn' value='posititve' class='btn btn-success'>Leave positive review</button>";
+                            }
+                            else if ($row['review'] == 1){
+                                echo "<button type='submit' name='remove_btn' value='remove' class='btn btn-success'>Remove review</button>";
+                            }
+
+                            if($row['review'] == 0 || $row['review'] == 1){
+                                echo "<button type='submit' name='negative_btn' value='negatitve' class='btn btn-success'>Leave negative review</button>";
+                            }
+                            else if ($row['review'] == -1){
+                                echo "<button type='submit' name='remove_btn' value='remove' class='btn btn-success'>Remove review</button>";
+                            }
                             echo "</form>";
                             echo "</div>";
                         }
+                    }
+                    else{
+                        echo "<div class='items-title'>No items were bought</div>";
                     }
                 } else if (htmlspecialchars($_GET['type']) == "sell") {
                     $query = "SELECT * FROM lot WHERE seller_name = '$name' AND buyer_name IS NULL";
                     $result = $conn->query($query);
                     if ($result->num_rows > 0) {
+                        echo "<div class='items-title'>Items you sell</div>";
                         while ($row = $result->fetch_assoc()) {
                             echo "<div class='item'>";
                             echo "<img src='image/" . htmlspecialchars($row['image_name']) . "' alt='Item Image'>";
                             echo "<h3>" . htmlspecialchars($row['item_name']) . "</h3>";
                             echo "<p>Price: $" . number_format($row['price'], 2) . "</p>";
-                            echo "<form action='delete_item.php' method='post'>";
+                            echo "<form action='delete_item.php' method='post' onsubmit='saveScrollPosition()'>";
                             echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
                             echo "<button type='submit' class='btn btn-success'>Remove from sale</button>";
                             echo "</form>";
                             echo "</div>";
                         }
+                    }
+                    else{
+                        echo "<div class='items-title'>No items are being sold</div>";
+                    }
+                }
+                else if(htmlspecialchars($_GET['type']) == "sold"){
+                    $query = "SELECT * FROM lot WHERE seller_name = '$name' AND buyer_name IS NOT NULL";
+                    $result = $conn->query($query);
+                    if ($result->num_rows > 0) {
+                        echo "<div class='items-title'>Sold items</div>";
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<div class='item'>";
+                            echo "<img src='image/" . htmlspecialchars($row['image_name']) . "' alt='Item Image'>";
+                            echo "<h3>" . htmlspecialchars($row['item_name']) . "</h3>";
+                            if($row['review'] == 0){
+                                echo "No review";
+                            }
+                            else if ($row['review'] == 1){
+                                echo "Positively reviewed";
+                            }
+                            else{
+                                echo "Negatively reviewed";
+                            }
+                            echo "</div>";
+                        }
+                    }
+                    else{
+                        echo "<div class='items-title'>No items were sold</div>";
                     }
                 }
                 ?>

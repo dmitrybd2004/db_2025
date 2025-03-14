@@ -6,16 +6,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $seller_name = $_POST['seller_name'];
     $buyer_name = $_POST['buyer_name'];
 
-    // echo "<h2>Purchase Successful!</h2>";
-    // echo "<p>You have bought: <strong>" . htmlspecialchars($item_name) . "</strong></p>";
-    // echo "<p>Item_id: " . number_format($item_id) . "</p>";
-    // echo "<p>Price: $" . number_format($price, 2) . "</p>";
-    // echo "<p>Seller name: " . htmlspecialchars($seller_name) . "</p>";
-    // echo "<p>Buyer name: " . htmlspecialchars($buyer_name) . "</p>";
-
-
-    //Database connection
-
     $host = "localhost";
     $dbusername = "root";
     $dbpassword = "3215979361";
@@ -27,7 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Connetion failed: ". $conn->connect_error);
     }
 
-    // validate login authentication
     $query = "UPDATE user_info SET balance = balance + $price, products_sold = products_sold + 1 WHERE username = '$seller_name'";
 
     $conn->query($query);
@@ -40,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $conn->query($query);
 
-    header("Location:success.php");
+    header("Location:home.php");
     exit();
 
     $conn->close();

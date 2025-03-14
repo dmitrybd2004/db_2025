@@ -25,24 +25,24 @@ session_start();
             .top-left {
                 display: flex;
                 align-items: center;
-                gap: 15px; /* Add spacing between elements */
+                gap: 15px;
             }
             .logout-btn {
-                margin-left: auto; /* Push Log Out button to the right */
+                margin-left: auto;
             }
             .form-container {
-                background-color: rgb(137, 191, 249); /* Blue background */
+                background-color: rgb(137, 191, 249);
                 padding: 20px;
                 border-radius: 8px;
-                width: 400px; /* Adjust width as needed */
-                margin: 50px auto; /* Centers it horizontally */
+                width: 400px;
+                margin: 50px auto;
                 text-align: center;
-                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             }
 
             .form-container input,.form-container button {
-                width: 100%; /* Make inputs and button full width */
-                margin-bottom: 10px; /* Add spacing */
+                width: 100%;
+                margin-bottom: 10px;
             }
 
             .form-container h2 {
@@ -53,8 +53,6 @@ session_start();
     </head>
     <body>
         <?php
-        
-            //Database connection
     
             $host = "localhost";
             $dbusername = "root";
@@ -80,11 +78,11 @@ session_start();
                 Welcome, <?php echo $name; ?>
                 <br />
                 Balance: $<?php echo $balance ?>
-                <a href="success.php" class="btn btn-light">Home</a>
-                <a href="user_info.php?type=none" class="btn btn-light">User Info</a>
+                <a href="home.php" class="btn btn-light">Home</a>
+                <a href="user_info.php?type=buy" class="btn btn-light">User Info</a>
                 <a href="new_lot.php" class="btn btn-light">Post Your Item</a>
             </div>
-            <a href="index.php" class="btn btn-light logout-btn">Log Out</a>
+            <a href="login_page.php" class="btn btn-light logout-btn">Log Out</a>
         </div>
         <div class="form-container">
             <form action="create_lot.php" method="POST" enctype="multipart/form-data">
@@ -108,12 +106,15 @@ session_start();
                     accept="image/png, image/jpeg, image/jpg" 
                 /><br />
                 <input type="submit" name="create_form_btn" value="Create lot" class="btn btn-success">
+                <?php
+                    if (isset($_GET['error'])) {
+                        echo "<p style='color:red;'>" ."Error: ". htmlspecialchars($_GET['error']) . "</p>";
+                    }
+                    if (isset($_GET['type'])) {
+                        echo "<p style='color:green;'>" ."Item uploaded successfully ". "</p>";
+                    }
+                ?>
             </form>
         </div>
-        <?php
-            if (isset($_GET['error'])) {
-                echo "<p style='color:red;'>" ."Error: ". htmlspecialchars($_GET['error']) . "</p>";
-            }
-        ?>
     </body>
 </html>

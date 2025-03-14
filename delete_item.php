@@ -3,9 +3,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $item_id = $_POST['item_id'];
 
-
-    //Database connection
-
     $host = "localhost";
     $dbusername = "root";
     $dbpassword = "3215979361";
@@ -27,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $query = "DELETE FROM lot WHERE item_id=$item_id";
     $conn->query($query);       
 
-    header("Location:user_info.php");
+    header("Location:user_info.php?type=sell");
     exit();
 
     $conn->close();
