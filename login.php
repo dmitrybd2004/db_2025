@@ -22,8 +22,24 @@ try{
     
             if($result->num_rows == 1){
                 $_SESSION["username"] = $username;
-                header("Location: home.php");
-                exit();
+
+                $query = "SELECT * FROM login WHERE login.username='$username' AND login.banned=1";
+                $result = $conn->query($query);
+                if ($result->num_rows > 0) {
+                    throw new Exception("Profile have been banned");
+                }
+
+                $query = "SELECT * FROM roles WHERE roles.username='$username' AND roles.role='moderator'";
+                $result = $conn->query($query);
+            
+                if ($result->num_rows == 0) {
+                    header("Location: home.php");
+                    exit();
+                }
+                else{
+                    header("Location: home_mod.php");
+                    exit();
+                }
             }
             else{
                 throw new Exception("Wrong username or password");
@@ -76,7 +92,8 @@ try{
                 $conn->query($insertquery);
                 $insertquery = "INSERT INTO user_info (username, balance, rating, products_bought, products_sold) VALUES('$username', 0, 0, 0, 0)";
                 $conn->query($insertquery);
-
+                $insertquery = "INSERT INTO roles (username) VALUES('$username')";
+                $conn->query($insertquery);
                 $_SESSION["username"] = $username;
                 header("Location: home.php");
                 exit();

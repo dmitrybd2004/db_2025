@@ -222,6 +222,8 @@ session_start();
                             <a href="user_info.php?type=sell" class="btn btn-light">Show items you sell</a>
                             <br>
                             <a href="user_info.php?type=sold" class="btn btn-light">Show items sold</a>
+                            <br>
+                            <a href="user_info.php?type=refund" class="btn btn-light">Show refund applications</a>
                     </div>
                 </div>
             </div>
@@ -230,7 +232,9 @@ session_start();
             <div class="items-container">
                 <?php
                 if (htmlspecialchars($_GET['type']) == "buy") {
-                    $query = "SELECT * FROM lot WHERE buyer_name = '$name'";
+                    
+                    //$query = "SELECT * FROM lot WHERE lot.buyer_name = '$name'";
+                    $query = "SELECT lot.*, refunds.processed FROM lot LEFT JOIN refunds ON lot.item_id = refunds.item_id AND refunds.processed = 0 WHERE lot.buyer_name = '$name'";
                     $result = $conn->query($query);
                     if ($result->num_rows > 0) {
                         echo "<div class='items-title'>Items bought</div>";
@@ -265,7 +269,21 @@ session_start();
                                 echo "<button type='submit' name='remove_btn' value='remove' class='btn btn-success'>Remove review</button>";
                             }
                             echo "</form>";
+
+                            echo "<form action='refund.php' method='post' onsubmit='saveScrollPosition()'>";
+                            echo "<input type='hidden' name='scrollPosition' class='scrollPosition' />";
+                            echo "<input type='hidden' name='item_id' value='" . $row['item_id'] . "'>";
+                            
+                            if(is_null($row['processed'])){
+                                echo "<button type='submit' name='positive_btn' value='posititve' class='btn btn-primary'>Apply for refund</button>";  
+                            }
+                            else{
+                                echo "<button type='submit' name='positive_btn' value='posititve' class='btn btn-primary' disabled>Request was sent</button>";
+                            }
+
+                            echo "</form>";
                             echo "</div>";
+                            
                         }
                     }
                     else{
@@ -309,6 +327,36 @@ session_start();
                             }
                             else{
                                 echo "Negatively reviewed";
+                            }
+                            echo "</div>";
+                        }
+                    }
+                    else{
+                        echo "<div class='items-title'>No items were sold</div>";
+                    }
+                }
+                else if(htmlspecialchars($_GET['type']) == "refund"){
+                    $query = "SELECT refunds.*, lot.image_name FROM refunds LEFT JOIN lot ON refunds.item_id = lot.item_id WHERE sent_by = '$name'";
+                    $result = $conn->query($query);
+
+                    if ($result->num_rows > 0) {
+                        echo "<div class='items-title'>Your requests</div>";
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<div class='item'>";
+                            if (is_null($row['image_name'])) {
+                                echo "<img src='image/no_image.jpg' alt='No Image'>";
+                            } else {
+                                echo "<img src='image/" . htmlspecialchars($row['image_name']) . "' alt='Item Image'>";
+                            }
+                            echo "<h3>" . htmlspecialchars($row['item_name']) . "</h3>";
+                            if($row['processed'] == 0){
+                                echo "Being processed";
+                            }
+                            else if ($row['accepted'] == 1){
+                                echo "Accepted";
+                            }
+                            else{
+                                echo "Rejected";
                             }
                             echo "</div>";
                         }
