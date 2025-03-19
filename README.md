@@ -12,6 +12,8 @@ git clone https://github.com/dmitrybd2004/db_2025.git
 
 В файле /config/.env Добавить ключ JWT_SECRET_KEY=<Random key>
 
+Если база данных не инициализирована, необходимо выполнить запросы из init.sql
+
 ### Запуск приложения
 Для запуска необходимо открыть xampp и запустить Apache и MySQL
 
