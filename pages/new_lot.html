@@ -66,9 +66,9 @@
                     Balance: $<span id="user-balance">Loading...</span>
                 </div>
                 <div class="buttons-container">
-                    <a href="../pages/home.php" class="btn btn-light">Home</a>
-                    <a href="../pages/user_info.php?type=buy" class="btn btn-light">User Info</a>
-                    <a href="../pages/new_lot.php" class="btn btn-light">Post Your Item</a>
+                    <a href="../pages/home.html" class="btn btn-light">Home</a>
+                    <a href="../pages/user_info.html?type=buy" class="btn btn-light">User Info</a>
+                    <a href="../pages/new_lot.html" class="btn btn-light">Post Your Item</a>
                 </div>
         </div>
         <button onclick="logout()" class="btn btn-light logout-btn">Log Out</button>
@@ -106,7 +106,7 @@
         const token = localStorage.getItem('token');
 
         if (!token) {
-            window.location.href = "/login/pages/login_page.php";
+            window.location.href = "/login/pages/login_page.html";
         }
 
         async function fetchUserData() {
@@ -127,7 +127,7 @@
                 document.getElementById('user-balance').textContent = data.balance;
             } catch (error) {
                 alert("Failed to fetch user data. Please log in again.");
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
             }
         }
 
@@ -162,7 +162,7 @@
 
         function logout() {
             localStorage.removeItem('token');
-            window.location.href = "/login/pages/login_page.php";
+            window.location.href = "/login/pages/login_page.html";
         }
     </script>
 </body>

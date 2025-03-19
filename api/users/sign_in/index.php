@@ -51,7 +51,7 @@ try {
             "status" => "success",
             "message" => "User created successfully",
             "data" => [
-                "redirect" => "/login/pages/home.php"
+                "redirect" => "/login/pages/home.html"
             ]
         ]);
     } else {

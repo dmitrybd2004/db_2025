@@ -70,7 +70,7 @@ try {
 
             $token = base64_encode(json_encode($payload)) . '.' . hash_hmac('sha256', json_encode($payload), $secretKey);
 
-            $redirect = $result->num_rows > 0 ? "/login/pages/home_mod.php" : "/login/pages/home.php";
+            $redirect = $result->num_rows > 0 ? "/login/pages/home_mod.html" : "/login/pages/home.html";
 
             echo json_encode([
                 "status" => "success",

@@ -69,7 +69,7 @@
         async function fetchUserInfo() {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
                 return;
             }
 
@@ -87,16 +87,16 @@
                         Welcome, ${data.username}
                         <br />
                         Balance: $${data.balance}
-                        <a href="../pages/home.php" class="btn btn-light">Home</a>
-                        <a href="../pages/user_info.php?type=buy" class="btn btn-light">User Info</a>
-                        <a href="../pages/new_lot.php" class="btn btn-light">Post Your Item</a>
+                        <a href="../pages/home.html" class="btn btn-light">Home</a>
+                        <a href="../pages/user_info.html?type=buy" class="btn btn-light">User Info</a>
+                        <a href="../pages/new_lot.html" class="btn btn-light">Post Your Item</a>
                     `;
                 } else {
                     throw new Error('Failed to fetch user info');
                 }
             } catch (error) {
                 alert('Failed to fetch user info. Please log in again.');
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
             }
         }
 
@@ -111,7 +111,7 @@
 
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
                 return;
             }
 
@@ -141,7 +141,7 @@
 
         function logout() {
             localStorage.removeItem('token');
-            window.location.href = "/login/pages/login_page.php";
+            window.location.href = "/login/pages/login_page.html";
         }
 
         fetchUserInfo();

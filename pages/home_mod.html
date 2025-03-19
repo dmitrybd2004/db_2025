@@ -69,7 +69,7 @@
 
             if (!token) {
                 alert("Token not found. Please log in again.");
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
                 return;
             }
 
@@ -78,19 +78,19 @@
 
                 if (userData.data.role !== 'moderator') {
                     alert("Access denied. You are not a moderator.");
-                    window.location.href = "/login/pages/login_page.php";
+                    window.location.href = "/login/pages/login_page.html";
                     return;
                 }
 
                 document.querySelector('.top-left').innerHTML = `
                     Welcome, ${userData.data.username}
-                    <a href="../pages/home_mod.php" class="btn btn-light">Home</a>
+                    <a href="../pages/home_mod.html" class="btn btn-light">Home</a>
                 `;
 
                 await fetchUnprocessedRefunds(token);
             } catch (error) {
                 alert("Failed to initialize page. Please try again.");
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
             }
         });
 
@@ -160,12 +160,12 @@
 
         function reviewRequest(event, requestId) {
             event.preventDefault();
-            window.location.href = `/login/pages/process.php?request_id=${requestId}`;
+            window.location.href = `/login/pages/process.html?request_id=${requestId}`;
         }
 
         function logout() {
             localStorage.removeItem('token');
-            window.location.href = "/login/pages/login_page.php";
+            window.location.href = "/login/pages/login_page.html";
         }
     </script>
 </head>

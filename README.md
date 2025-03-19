@@ -17,7 +17,7 @@ git clone https://github.com/dmitrybd2004/db_2025.git
 
 В результате интерфейс станет доступен по адресу:
 ```
-http://localhost/db_2025/pages/login_page.php
+http://localhost/db_2025/pages/login_page.html
 ```
 База данных станет доступна по адресу:
 ```

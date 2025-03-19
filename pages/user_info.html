@@ -319,7 +319,7 @@
                 const token = localStorage.getItem('token');
 
                 if (!token) {
-                    window.location.href = "/login/pages/login_page.php";
+                    window.location.href = "/login/pages/login_page.html";
                     return;
                 }
 
@@ -378,9 +378,9 @@
                                     Balance: $<span id="user-balance">${data.balance}</span>
                                 </div>
                                 <div class="buttons-container">
-                                    <a href="../pages/home.php" class="btn btn-light">Home</a>
-                                    <a href="../pages/user_info.php?type=buy" class="btn btn-light">User Info</a>
-                                    <a href="../pages/new_lot.php" class="btn btn-light">Post Your Item</a>
+                                    <a href="../pages/home.html" class="btn btn-light">Home</a>
+                                    <a href="../pages/user_info.html?type=buy" class="btn btn-light">User Info</a>
+                                    <a href="../pages/new_lot.html" class="btn btn-light">Post Your Item</a>
                                 </div>
                             </div>
                         `;
@@ -446,7 +446,7 @@
                 } catch (error) {
                     console.error('Error fetching user data:', error);
                     alert("Failed to fetch user data. Please log in again.");
-                    window.location.href = "/login/pages/login_page.php";
+                    window.location.href = "/login/pages/login_page.html";
                 }
             }
 
@@ -551,12 +551,12 @@
             }
 
             function leaveRefundRequest(itemId) {
-                window.location.href = `/login/pages/refund.php?item_id=${itemId}`;
+                window.location.href = `/login/pages/refund.html?item_id=${itemId}`;
             }
 
             function logout() {
                 localStorage.removeItem('token');
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
             }
         </script>
     </head>
@@ -572,9 +572,9 @@
                 </div>
                 <div class="button-group">
                     <a href="#" class="btn btn-light">Show bought items</a>
-                    <a href="../pages/user_info.php?type=sell" class="btn btn-light">Show items you sell</a>
-                    <a href="../pages/user_info.php?type=sold" class="btn btn-light">Show items sold</a>
-                    <a href="../pages/user_info.php?type=refund" class="btn btn-light">Show refund applications</a>
+                    <a href="../pages/user_info.html?type=sell" class="btn btn-light">Show items you sell</a>
+                    <a href="../pages/user_info.html?type=sold" class="btn btn-light">Show items sold</a>
+                    <a href="../pages/user_info.html?type=refund" class="btn btn-light">Show refund applications</a>
                 </div>
             </div>
         </div>

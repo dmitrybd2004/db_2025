@@ -53,7 +53,7 @@
 
             if (!token) {
                 alert("Token not found. Please log in again.");
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
                 return;
             }
 
@@ -62,19 +62,19 @@
 
                 if (userData.data.role !== 'moderator') {
                     alert("Access denied. You are not a moderator.");
-                    window.location.href = "/login/pages/login_page.php";
+                    window.location.href = "/login/pages/login_page.html";
                     return;
                 }
 
                 document.querySelector('.top-left').innerHTML = `
                     Welcome, ${userData.data.username}
-                    <a href="../pages/home_mod.php" class="btn btn-light">Home</a>
+                    <a href="../pages/home_mod.html" class="btn btn-light">Home</a>
                 `;
 
                 const requestId = new URLSearchParams(window.location.search).get('request_id');
                 if (!requestId) {
                     alert("Request ID is missing.");
-                    window.location.href = "/login/pages/home_mod.php";
+                    window.location.href = "/login/pages/home_mod.html";
                     return;
                 }
 
@@ -82,7 +82,7 @@
                 renderRequestDetails(requestData);
             } catch (error) {
                 alert("Failed to initialize page. Please try again.");
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
             }
         });
 
@@ -160,7 +160,7 @@
             const token = localStorage.getItem('token');
             if (!token) {
                 alert("Token not found. Please log in again.");
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
                 return;
             }
 
@@ -180,7 +180,7 @@
 
                 const data = await response.json();
                 alert(data.message);
-                window.location.href = "/login/pages/home_mod.php";
+                window.location.href = "/login/pages/home_mod.html";
             } catch (error) {
                 alert("Failed to accept request. Please try again.");
             }
@@ -190,7 +190,7 @@
             const token = localStorage.getItem('token');
             if (!token) {
                 alert("Token not found. Please log in again.");
-                window.location.href = "/login/pages/login_page.php";
+                window.location.href = "/login/pages/login_page.html";
                 return;
             }
 
@@ -210,7 +210,7 @@
 
                 const data = await response.json();
                 alert(data.message);
-                window.location.href = "/login/pages/home_mod.php";
+                window.location.href = "/login/pages/home_mod.html";
             } catch (error) {
                 alert("Failed to reject request. Please try again.");
             }
@@ -218,7 +218,7 @@
 
         function logout() {
             localStorage.removeItem('token');
-            window.location.href = "/login/pages/login_page.php";
+            window.location.href = "/login/pages/login_page.html";
         }
     </script>
 </head>
