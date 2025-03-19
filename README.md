@@ -10,6 +10,7 @@ git clone https://github.com/dmitrybd2004/db_2025.git
 ```
 В результате у вас на компьютере появится директория `db_2025`, которую нужно переместить в <путь до xampp>/xampp/htdocs
 
+В файле /config/.env Добавить ключ JWT_SECRET_KEY=<Random key>
 
 ### Запуск приложения
 Для запуска необходимо открыть xampp и запустить Apache и MySQL

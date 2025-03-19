@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Marketplace>
+    <Description>
+        Marketplace — это сайт для размещения объявлений о товарах. Пользователи размещают и просматривают объявления о продаже различных товаров и приобретают размещенные товары.
+
+        В проект внедрена возможность возврата средств. При одобрении модератором покупка отменяется и пользователь получает свои деньги назад.
+    </Description>
+
+    <Domain>
+        <FocusAreas>
+            <FocusArea>Товары</FocusArea>
+            <FocusArea>Пользователи</FocusArea>
+        </FocusAreas>
+    </Domain>
+
+    <Data>
+        <Tables>
+            <Table name="login">
+                <Field name="username" type="primary" length="16" reference="user_info.username" description="не может быть NULL" />
+                <Field name="password" type="string" length="16" unique="true" description="не может быть NULL" />
+                <Field name="banned" type="boolean" default="false" description="не может быть NULL" />
+            </Table>
+
+            <Table name="user_info">
+                <Field name="username" type="primary" length="16" description="не может быть NULL" />
+                <Field name="balance" type="float" default="0" description="не может быть NULL" />
+                <Field name="rating" type="integer" default="0" description="не может быть NULL" />
+                <Field name="products_bought" type="integer" default="0" description="не может быть NULL" />
+                <Field name="products_sold" type="integer" default="0" description="не может быть NULL" />
+            </Table>
+
+            <Table name="roles">
+                <Field name="username" type="primary" length="16" reference="user_info.username" description="не может быть NULL" />
+                <Field name="role" type="string" length="16" default="user" description="не может быть NULL" />
+            </Table>
+
+            <Table name="lot">
+                <Field name="item_id" type="primary" description="автоинкремент" />
+                <Field name="seller_name" type="string" length="16" reference="user_info.username" description="не может быть NULL" />
+                <Field name="buyer_name" type="string" length="16" reference="user_info.username" default="NULL" nullable="true" />
+                <Field name="item_name" type="string" length="16" description="не может быть NULL" />
+                <Field name="price" type="float" description="не может быть NULL" />
+                <Field name="image_name" type="string" length="256" unique="true" description="не может быть NULL" />
+                <Field name="review" type="tinyint" default="0" description="не может быть NULL" />
+            </Table>
+
+            <Table name="refunds">
+                <Field name="request_id" type="primary" description="автоинкремент" />
+                <Field name="item_id" type="integer" description="не может быть NULL" />
+                <Field name="item_name" type="string" length="16" description="не может быть NULL" />
+                <Field name="description" type="string" length="256" description="не может быть NULL" />
+                <Field name="processed" type="tinyint" default="0" description="не может быть NULL" />
+                <Field name="report_type" type="tinyint" description="не может быть NULL" />
+                <Field name="accepted" type="tinyint" default="0" description="не может быть NULL" />
+                <Field name="sent_by" type="string" length="16" description="не может быть NULL" />
+            </Table>
+        </Tables>
+
+        <Constraints>
+            <Constraint type="referential">Все внешние ключи должны ссылаться на существующие записи</Constraint>
+            <Constraint type="referential">Удаление записей, на которые ссылаются другие таблицы, запрещено (удаление зависимых данных выполняется вручную)</Constraint>
+            <Constraint type="unique">Поля login.password, lot.image_name должны быть уникальными</Constraint>
+            <Constraint type="validation">Поле lot.price должно иметь положительное значение</Constraint>
+            <Constraint type="validation">Пользователь может загрузить только фотографии формата PNG или JPEG</Constraint>
+        </Constraints>
+    </Data>
+
+    <Roles>
+        <Role name="Moderator">
+            <Responsibilities>
+                <Responsibility>Просмотр заявлений на возврат средств, на блокировку пользователей.</Responsibility>
+            </Responsibilities>
+            <UserCount>Зависит от потребностей проекта</UserCount>
+        </Role>
+        <Role name="User">
+            <Responsibilities>
+                <Responsibility>Размещение объявлений о продаже</Responsibility>
+                <Responsibility>Взаимодействие с товарами других пользователей</Responsibility>
+            </Responsibilities>
+            <UserCount>Зависит от масштаба платформы</UserCount>
+        </Role>
+    </Roles>
+
+    <API>
+        <Method name="POST /api/users/sign_in/">
+            <Description>Регистрация пользователя</Description>
+        </Method>
+        <Method name="POST /api/users/login/">
+            <Description>Авторизация пользователя</Description>
+        </Method>
+        <Method name="GET /api/users/info/">
+            <Description>Получение информации о текущем пользователе</Description>
+        </Method>
+        <Method name="POST /api/users/deposit/">
+            <Description>Пополнение баланса пользователя</Description>
+        </Method>
+        <Method name="GET /api/lots/available/">
+            <Description>Получение списка товаров, доступных для покупки</Description>
+        </Method>
+        <Method name="POST /api/lots/buy/ITEM_ID">
+            <Description>Покупка товара по его ID</Description>
+        </Method>
+        <Method name="POST /api/lots/create/">
+            <Description>Создание нового товара для продажи</Description>
+        </Method>
+        <Method name="DELETE /api/lots/delete/ITEM_ID">
+            <Description>Удаление товара по его ID</Description>
+        </Method>
+        <Method name="GET /api/lots/sold/">
+            <Description>Получение списка товаров, проданных текущим пользователем</Description>
+        </Method>
+        <Method name="GET /api/lots/selling/">
+            <Description>Получение списка товаров, которые продает текущий пользователь</Description>
+        </Method>
+        <Method name="POST /api/reviews/positive/">
+            <Description>Оставление положительного отзыва на товар</Description>
+        </Method>
+        <Method name="POST /api/reviews/negative/">
+            <Description>Оставление отрицательного отзыва на товар</Description>
+        </Method>
+        <Method name="POST /api/reviews/remove/">
+            <Description>Удаление отзыва на товар</Description>
+        </Method>
+        <Method name="POST /api/refunds/create/">
+            <Description>Создание запроса на возврат средств</Description>
+        </Method>
+        <Method name="GET /api/refunds/personal/">
+            <Description>Получение списка запросов на возврат, созданных текущим пользователем</Description>
+        </Method>
+        <Method name="GET /api/refunds/unprocessed/">
+            <Description>Получение списка необработанных запросов на возврат (для модераторов)</Description>
+        </Method>
+        <Method name="POST /api/refunds/accept/">
+            <Description>Принятие запроса на возврат</Description>
+        </Method>
+        <Method name="POST /api/refunds/reject/">
+            <Description>Отклонение запроса на возврат</Description>
+        </Method>
+        <Method name="GET /api/role/">
+            <Description>Получение роли текущего пользователя</Description>
+        </Method>
+        <DocumentationURL>http://localhost:7000/docs</DocumentationURL>
+    </API>
+
+    <UI>
+        <Page name="RegistrationAndLogin">
+            <Description>Страница регистрации и авторизации</Description>
+            <Details>
+                <Feature>Пользователи могут создать новый аккаунт, указав имя пользователя и пароль. При успешной регистрации авторизация происходит автоматически.</Feature>
+                <Feature>При ошибках (например, "Username or password already taken") пользователю выводится соответствующее сообщение.</Feature>
+                <Feature>Позволяет пользователю войти в систему, введя имя пользователя и пароль. При успешной авторизации происходит переход на главную страницу.</Feature>
+                <Feature>При ошибке авторизации выводится сообщение "Invalid username or password".</Feature>
+            </Details>
+        </Page>
+
+        <Page name="MainPage">
+            <Description>Главная страница с объявлениями</Description>
+            <Details>
+                <Feature>Верхняя панель: отображает основную информацию о пользователе и реализует навигацию по сайту.</Feature>
+                <Feature>Поле поиска: позволяет фильтровать и сортировать товары по рейтингу продавца, цене товара и его названию.</Feature>
+                <Feature>Список товаров: содержит объявления с товарами, к каждому объявлению приложена кнопка покупки.</Feature>
+            </Details>
+        </Page>
+
+        <Page name="CreateAdPage">
+            <Description>Страница создания объявления</Description>
+            <Details>
+                <Feature>Верхняя панель: отображает основную информацию о пользователе и реализует навигацию по сайту.</Feature>
+                <Feature>Форма для создания товара: позволяет пользователю добавить новое объявление о продаже товара.</Feature>
+            </Details>
+        </Page>
+
+        <Page name="UserInfoPage">
+            <Description>Страница информации о пользователе</Description>
+            <Details>
+                <Feature>Верхняя панель: отображает основную информацию о пользователе и реализует навигацию по сайту.</Feature>
+                <Feature>Форма для пополнения баланса: позволяет пользователю пополнить свой баланс.</Feature>
+                <Feature>Кнопки для переключения между разделами: позволяют пользователю выбрать раздел для просмотра (купленные, проданные, на продаже, возвраты).</Feature>
+                <Feature>Список товаров: отображает товары в зависимости от выбранного раздела (купленные, проданные, на продаже, возвраты).</Feature>
+            </Details>
+        </Page>
+
+        <Page name="RefundRequestPage">
+            <Description>Страница подачи запроса на возврат</Description>
+            <Details>
+                <Feature>Верхняя панель: отображает основную информацию о пользователе и реализует навигацию по сайту.</Feature>
+                <Feature>Форма для подачи запроса: позволяет пользователю подать запрос на возврат средств и выбрать тип запроса (возврат или возврат с жалобой).</Feature>
+            </Details>
+        </Page>
+
+        <Page name="ModeratorMainPage">
+            <Description>Страница модератора</Description>
+            <Details>
+                <Feature>Верхняя панель: отображает имя модератора и реализует навигацию по сайту.</Feature>
+                <Feature>Список необработанных запросов на возврат: отображает запросы, которые необходимо рассмотреть. Переход к отдельному запросу осуществляется нажатием кнопки.</Feature>
+            </Details>
+        </Page>
+
+        <Page name="RefundProcessingPage">
+            <Description>Страница обработки запроса на возврат</Description>
+            <Details>
+                <Feature>Верхняя панель: отображает основную информацию о пользователе и реализует навигацию по сайту.</Feature>
+                <Feature>Информация о запросе: содержит данные о товаре, продавце, пользователе, подавшем запрос, и описание проблемы.</Feature>
+            </Details>
+        </Page>
+    </UI>
+
+    <Technologies>
+        <Backend>PHP</Backend>
+        <Frontend>HTML, CSS + Bootstrap, JavaScript</Frontend>
+        <Web-server>XAMPP</Web-server>
+        <Tools>Git (контроль версий), Postman (тестирование)</Tools>
+        <APIType>Fetch API</APIType>
+        <Database>MySQL</Database>
+    </Technologies>
+
+    <Testing>
+        <Method>Ручное тестирование</Method>
+        <Method>Тестирование API-запросов через Postman</Method>
+    </Testing>
+
+    <Transactions>
+        <Function name="buy">
+            <Description>Обработка покупки товара, включая обновление баланса покупателя и продавца, а также изменение статуса товара.</Description>
+            <Steps>
+                <Step>Начало транзакции.</Step>
+                <Step>Проверка доступности товара.</Step>
+                <Step>Проверка баланса покупателя.</Step>
+                <Step>Обновление баланса продавца.</Step>
+                <Sstep>Обновление баланса покупателя.</Step>
+                <Step>Обновление статуса товара (пометка как проданного).</Step>
+                <Step>Фиксация транзакции.</Step>
+                <Step>Обработка ошибок: откат транзакции в случае ошибки.</Step>
+            </Steps>
+        </Function>
+
+        <Function name="accept_refund">
+            <Description>Обработка запроса на возврат, включая обновление баланса покупателя и продавца, а также изменение статуса возврата.</Description>
+            <Steps>
+                <Step>Начало транзакции.</Step>
+                <Step>Обновление баланса покупателя и продавца.</Step>
+                <Step>Обновление статуса возврата.</Step>
+                <Step>Удаление товаров продавца (если запрос включает жалобу).</Step>
+                <Step>Фиксация транзакции.</Step>
+                <Step>Обработка ошибок: откат транзакции в случае ошибки.</Step>
+            </Steps>
+        </Function>
+
+        <Function name="sign_in">
+            <Description>Регистрация нового пользователя, включая создание записей в таблицах `login`, `user_info` и `roles`.</Description>
+            <Steps>
+                <Step>Начало транзакции.</Step>
+                <Step>Проверка уникальности логина и пароля.</Step>
+                <Step>Добавление записи в таблицу `login`.</Step>
+                <Step>Добавление записи в таблицу `user_info`.</Step>
+                <Step>Добавление записи в таблицу `roles`.</Step>
+                <Step>Фиксация транзакции.</Step>
+                <Step>Обработка ошибок: откат транзакции в случае ошибки.</Step>
+            </Steps>
+        </Function>
+
+        <Function name="submit_positive_review">
+            <Description>Оставление положительного отзыва на товар, включая обновление рейтинга продавца.</Description>
+            <Steps>
+                <Step>Начало транзакции.</Step>
+                <Step>Проверка текущего отзыва.</Step>
+                <Step>Обновление рейтинга продавца.</Step>
+                <Step>Обновление статуса отзыва в таблице `lot`.</Step>
+                <Step>Фиксация транзакции.</Step>
+                <Step>Обработка ошибок: откат транзакции в случае ошибки.</Step>
+            </Steps>
+        </Function>
+
+        <Function name="submit_negative_review">
+            <Description>Оставление отрицательного отзыва на товар, включая обновление рейтинга продавца.</Description>
+            <Steps>
+                <Step>Начало транзакции.</Step>
+                <Step>Проверка текущего отзыва.</Step>
+                <Step>Обновление рейтинга продавца.</Step>
+                <Step>Обновление статуса отзыва в таблице `lot`.</Step>
+                <Step>Фиксация транзакции.</Step>
+                <Step>Обработка ошибок: откат транзакции в случае ошибки.</Step>
+            </Steps>
+        </Function>
+
+        <Function name="remove_review">
+            <Description>Удаление отзыва на товар, включая обновление рейтинга продавца.</Description>
+            <Steps>
+                <Step>Начало транзакции.</Step>
+                <Step>Проверка текущего отзыва.</Step>
+                <Step>Обновление рейтинга продавца.</Step>
+                <Step>Обновление статуса отзыва в таблице `lot`.</Step>
+                <Step>Фиксация транзакции.</Step>
+                <Step>Обработка ошибок: откат транзакции в случае ошибки.</Step>
+            </Steps>
+        </Function>
+    </Transactions>
+</Marketplace>
