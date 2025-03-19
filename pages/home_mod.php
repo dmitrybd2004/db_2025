@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Welcome Moderator</title>
+    <style>
+        body {
+            background-color: rgb(244, 255, 183);
+        }
+        .top-bar {
+            background: black;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+        }
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logout-btn {
+            margin-left: auto;
+        }
+        .container {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .item {
+            border: 2px solid black;
+            padding: 10px;
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 250px;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+        .item img {
+            width: 200px;
+            height: 250px;
+        }
+        hr {
+            border: 1;
+            clear: both;
+            display: block;
+            width: 110%;
+            background-color: black;
+            height: 3px;
+        }
+    </style>
+    <script>
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert("Token not found. Please log in again.");
+                window.location.href = "/login/pages/login_page.php";
+                return;
+            }
+
+            try {
+                const userData = await fetchUserData(token);
+
+                if (userData.data.role !== 'moderator') {
+                    alert("Access denied. You are not a moderator.");
+                    window.location.href = "/login/pages/login_page.php";
+                    return;
+                }
+
+                document.querySelector('.top-left').innerHTML = `
+                    Welcome, ${userData.data.username}
+                    <a href="../pages/home_mod.php" class="btn btn-light">Home</a>
+                `;
+
+                await fetchUnprocessedRefunds(token);
+            } catch (error) {
+                alert("Failed to initialize page. Please try again.");
+                window.location.href = "/login/pages/login_page.php";
+            }
+        });
+
+        async function fetchUserData(token) {
+            const response = await fetch('/login/api/role/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch user data: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data;
+        }
+
+        async function fetchUnprocessedRefunds(token) {
+            const url = new URL('/login/api/refunds/unprocessed/', window.location.origin);
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch refund requests: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            renderRefundRequests(data);
+        }
+
+        function renderRefundRequests(response) {
+            const itemsContainer = document.querySelector('.items-container');
+            itemsContainer.innerHTML = '';
+
+            if (!response.data || !Array.isArray(response.data)) {
+                itemsContainer.innerHTML = `<p>No unprocessed requests available.</p>`;
+                return;
+            }
+
+            const requests = response.data;
+            requests.forEach(request => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+
+                itemDiv.innerHTML = `
+                    <img src="../image/${request.image_name}" alt="Item Image">
+                    <hr>
+                    <h4>${request.item_name}</h4>
+                    <h4>$${request.price.toFixed(2)}</h4>
+                    <h5> Request by: ${request.buyer_name}</h5>
+                    <form onsubmit="reviewRequest(event, ${request.request_id})">
+                        <button type="submit" class="btn btn-success">Review request</button>
+                    </form>
+                `;
+
+                itemsContainer.appendChild(itemDiv);
+            });
+        }
+
+        function reviewRequest(event, requestId) {
+            event.preventDefault();
+            window.location.href = `/login/pages/process.php?request_id=${requestId}`;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = "/login/pages/login_page.php";
+        }
+    </script>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-left">
+        </div>
+        <button onclick="logout()" class="btn btn-light logout-btn">Log Out</button>
+    </div>
+
+    <div class="container">
+        <h2>Unprocessed Refund Requests</h2>
+        <div class="items-container">
+        </div>
+    </div>
+</body>
+</html>

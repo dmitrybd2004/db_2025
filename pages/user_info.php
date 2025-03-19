@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <title>Welcome</title>
+        <style>
+            body {
+                background-color: rgb(244, 255, 183);
+            }
+            .top-bar {
+                background: black;
+                color: white;
+                padding: 10px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 15px;
+            }
+            .top-left {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            .logout-btn {
+                margin-left: auto;
+            }
+            .container {
+                margin-top: 50px;
+                text-align: center;
+            }
+            .item {
+                border: 2px solid black;
+                padding: 10px;
+                margin: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 250px;
+                text-align: center;
+                background-color: #fff;
+                border-radius: 5px;
+            }
+            .item img {
+                width: 200px;
+                height: 250px;
+            }
+            .item form {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                margin-top: 10px;
+                flex-direction: column;
+                align-items: center;
+            }
+            .item button {
+                width: 80%;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            .info-frame {
+                background-color: rgb(137, 191, 249);
+                color: black;
+                padding: 20px;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .info-content {
+                width: 50%;
+                max-width: 500px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .info-content input, 
+            .info-content .btn {
+                width: 100%;
+            }
+            .info-frame input {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            .info-frame p {
+                margin-bottom: 2px;
+            }
+            .main-container {
+                display: flex;
+                align-items: flex-start;
+            }
+            .button-group {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .main-content {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                width: 100%;
+            }
+            .items-section {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                padding: 20px 0;
+            }
+            .items-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+                max-width: 100%;
+            }
+            .items-title {
+                font-size: 28px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 20px;
+                width: 100%;
+            }
+            .item-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .review-buttons {
+                display: flex;
+                gap: 10px;
+            }
+
+            .refund-button {
+                margin: 0 auto;
+            }
+            .welcome-balance-container {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .buttons-container {
+                display: flex;
+                gap: 10px;
+                margin-left: auto;
+            }
+            hr {
+                border: 1;
+                clear: both;
+                display: block;
+                width: 110%;
+                background-color: black;
+                height: 3px;
+            }
+        </style>
+        <script>
+            let currentView = 'bought';
+
+            async function fetchSellingItems(token) {
+                try {
+                    const response = await fetch('/login/api/lots/selling', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch selling items");
+                    }
+
+                    const data = await response.json();
+
+                    const itemsContainer = document.querySelector('.items-container');
+                    if (itemsContainer) {
+                        itemsContainer.innerHTML = '';
+
+                        if (data.data.length > 0) {
+                            data.data.forEach(item => {
+                                const itemDiv = document.createElement('div');
+                                itemDiv.className = 'item';
+                                itemDiv.innerHTML = `
+                                    <img src="../image/${item.image_name}" alt="Item Image">
+                                    <hr>
+                                    <h4>${item.item_name}</h4>
+                                    <h4>Price: $${item.price.toFixed(2)}</h4>
+                                    <button onclick="deleteItem(${item.item_id}, '${token}')" class="btn btn-success">Remove from sale</button>
+                                `;
+                                itemsContainer.appendChild(itemDiv);
+                            });
+                        } else {
+                            itemsContainer.innerHTML = `<p>No items are being sold.</p>`;
+                        }
+                    } else {
+                        console.error("Items container not found");
+                    }
+                } catch (error) {
+                    console.error('Error fetching selling items:', error);
+                    alert("Failed to fetch selling items. Please try again.");
+                }
+            }
+
+            async function deleteItem(itemId, token) {
+                try {
+                    const response = await fetch('/login/api/lots/delete/' + itemId, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to delete item");
+                    }
+
+                    if (currentView === 'selling') {
+                        await fetchSellingItems(token);
+                    }
+                } catch (error) {
+                    console.error('Error deleting item:', error);
+                    alert("Failed to delete item. Please try again.");
+                }
+            }
+
+            async function fetchSoldItems(token) {
+                try {
+                    const response = await fetch('/login/api/lots/sold', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch sold items");
+                    }
+
+                    const data = await response.json();
+
+                    const itemsContainer = document.querySelector('.items-container');
+                    if (itemsContainer) {
+                        itemsContainer.innerHTML = '';
+
+                        if (data.data.length > 0) {
+                            data.data.forEach(item => {
+                                const itemDiv = document.createElement('div');
+                                itemDiv.className = 'item';
+                                itemDiv.innerHTML = `
+                                    <img src="../image/${item.image_name}" alt="Item Image">
+                                    <hr>
+                                    <h4>${item.item_name}</h4>
+                                    <h4>Price: $${item.price.toFixed(2)}</h4>
+                                    <h4>Review: ${item.review === 0 ? 'No review' : item.review === 1 ? 'Positive' : 'Negative'}</h4>
+                                `;
+                                itemsContainer.appendChild(itemDiv);
+                            });
+                        } else {
+                            itemsContainer.innerHTML = `<p>No items were sold.</p>`;
+                        }
+                    } else {
+                        console.error("Items container not found");
+                    }
+                } catch (error) {
+                    console.error('Error fetching sold items:', error);
+                    alert("Failed to fetch sold items. Please try again.");
+                }
+            }
+
+            async function fetchRefundApplications(token) {
+                try {
+                    const response = await fetch('/login/api/refunds/personal/', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch refund applications");
+                    }
+
+                    const data = await response.json();
+
+                    const itemsContainer = document.querySelector('.items-container');
+                    if (itemsContainer) {
+                        itemsContainer.innerHTML = '';
+
+                        if (data.data.length > 0) {
+                            data.data.forEach(refund => {
+                                const itemDiv = document.createElement('div');
+                                itemDiv.className = 'item';
+                                itemDiv.innerHTML = `
+                                    <img src="../image/${refund.image_name}" alt="Item Image" onerror="this.onerror=null; this.src='../image/no_image.jpg';">
+                                    <hr>
+                                    <h4>${refund.item_name}</h4>
+                                    <h4>Status: ${refund.processed === 0 ? 'Active' : refund.accepted === 1 ? 'Accepted' : 'Rejected'}</h4>
+                                `;
+                                itemsContainer.appendChild(itemDiv);
+                            });
+                        } else {
+                            itemsContainer.innerHTML = `<p>No refund applications found.</p>`;
+                        }
+                    } else {
+                        console.error("Items container not found");
+                    }
+                } catch (error) {
+                    console.error('Error fetching refund applications:', error);
+                    alert("Failed to fetch refund applications. Please try again.");
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    window.location.href = "/login/pages/login_page.php";
+                    return;
+                }
+
+                fetchUserData(token);
+
+                fetchBoughtItems(token);
+
+                const buttonGroup = document.querySelector('.button-group');
+                if (buttonGroup) {
+                    buttonGroup.addEventListener('click', async (e) => {
+                        if (e.target.textContent === "Show bought items") {
+                            e.preventDefault();
+                            currentView = 'bought';
+                            await fetchBoughtItems(token);
+                        } else if (e.target.textContent === "Show items you sell") {
+                            e.preventDefault();
+                            currentView = 'selling';
+                            await fetchSellingItems(token);
+                        } else if (e.target.textContent === "Show items sold") {
+                            e.preventDefault();
+                            currentView = 'sold';
+                            await fetchSoldItems(token);
+                        } else if (e.target.textContent === "Show refund applications") {
+                            e.preventDefault();
+                            currentView = 'refund';
+                            await fetchRefundApplications(token);
+                        }
+                    });
+                } else {
+                    console.error("Button group not found");
+                }
+            });
+
+            async function fetchUserData(token) {
+                try {
+                    const response = await fetch('/login/api/users/info/', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch user data");
+                    }
+
+                    const data = await response.json();
+
+                    const topLeft = document.querySelector('.top-left');
+                    if (topLeft) {
+                        topLeft.innerHTML = `
+                            <div class="welcome-balance-container">
+                                <div>
+                                    Welcome, ${data.username}
+                                    <br>
+                                    Balance: $<span id="user-balance">${data.balance}</span>
+                                </div>
+                                <div class="buttons-container">
+                                    <a href="../pages/home.php" class="btn btn-light">Home</a>
+                                    <a href="../pages/user_info.php?type=buy" class="btn btn-light">User Info</a>
+                                    <a href="../pages/new_lot.php" class="btn btn-light">Post Your Item</a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        console.error("Top-left element not found");
+                    }
+
+                    const infoContent = document.querySelector('.info-content');
+                    if (infoContent) {
+                        infoContent.innerHTML = `
+                            <p>Your username is: ${data.username}</p>
+                            <p>Your balance is: $${data.balance}</p>
+                            <form id="deposit-form">
+                                <input 
+                                    type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    name="amount"
+                                    class="form-control"
+                                    placeholder="Enter deposit"
+                                />
+                                <input type="submit" name="deposit_btn" value="Add funds" class="btn btn-success">
+                            </form>
+                            <p>Your rating: ${data.rating}</p>
+                            <p>You bought ${data.products_bought} items</p>
+                            <p>You sold ${data.products_sold} items</p>
+                        `;
+
+                        const depositForm = document.getElementById('deposit-form');
+                        if (depositForm) {
+                            depositForm.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.target);
+                                const amount = formData.get('amount');
+
+                                try {
+                                    const response = await fetch('/login/api/users/deposit/', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${token}`
+                                        },
+                                        body: JSON.stringify({ amount: parseFloat(amount) })
+                                    });
+
+                                    const result = await response.json();
+
+                                    if (response.ok) {
+                                        await fetchUserData(token);
+                                    } else {
+                                        console.error("Failed to deposit funds:", result.error);
+                                    }
+                                } catch (error) {
+                                    console.error('Error depositing funds:', error);
+                                }
+                            });
+                        } else {
+                            console.error("Deposit form not found");
+                        }
+                    } else {
+                        console.error("Info content element not found");
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    alert("Failed to fetch user data. Please log in again.");
+                    window.location.href = "/login/pages/login_page.php";
+                }
+            }
+
+            async function fetchBoughtItems(token) {
+                try {
+                    const response = await fetch('/login/api/lots/bought', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch bought items");
+                    }
+
+                    const data = await response.json();
+
+                    const itemsContainer = document.querySelector('.items-container');
+                    if (itemsContainer) {
+                        itemsContainer.innerHTML = '';
+
+                        if (data.data.length > 0) {
+                            data.data.forEach(item => {
+                                const itemDiv = document.createElement('div');
+                                itemDiv.className = 'item';
+                                itemDiv.innerHTML = `
+                                    <img src="../image/${item.image_name}" alt="Item Image">
+                                    <hr>
+                                    <h4>${item.item_name}</h4>
+                                    <h4>Price: $${item.price.toFixed(2)}</h4>
+                                    <h4>Review: ${item.review === 0 ? 'No review' : item.review === 1 ? 'Positive' : 'Negative'}</h4>
+                                    <div class="item-buttons">
+                                        <div class="review-buttons">
+                                            ${item.review === 0 ? `
+                                                <button onclick="submitReview(${item.item_id}, 1, '${token}')" class="btn btn-success">Review positively</button>
+                                                <button onclick="submitReview(${item.item_id}, -1, '${token}')" class="btn btn-danger">Review negatively</button>
+                                            ` : item.review === 1 ? `
+                                                <button onclick="submitReview(${item.item_id}, 0, '${token}')" class="btn btn-warning">Remove review</button>
+                                                <button onclick="submitReview(${item.item_id}, -1, '${token}')" class="btn btn-danger">Review negatively</button>
+                                            ` : `
+                                                <button onclick="submitReview(${item.item_id}, 1, '${token}')" class="btn btn-success">Review positively</button>
+                                                <button onclick="submitReview(${item.item_id}, 0, '${token}')" class="btn btn-warning">Remove review</button>
+                                            `}
+                                        </div>
+                                        <button onclick="leaveRefundRequest(${item.item_id})" class="btn btn-primary refund-button" ${item.processed !== null ? 'disabled' : ''}>
+                                            Leave Refund Request
+                                        </button>
+                                    </div>
+                                `;
+                                itemsContainer.appendChild(itemDiv);
+                            });
+                        } else {
+                            itemsContainer.innerHTML = `<p>No items were bought.</p>`;
+                        }
+                    } else {
+                        console.error("Items container not found");
+                    }
+                } catch (error) {
+                    console.error('Error fetching bought items:', error);
+                    alert("Failed to fetch bought items. Please try again.");
+                }
+            }
+
+            async function submitReview(itemId, reviewType, token) {
+                try {
+                    let endpoint;
+                    switch (reviewType) {
+                        case 1:
+                            endpoint = '/login/api/reviews/positive/';
+                            break;
+                        case -1:
+                            endpoint = '/login/api/reviews/negative/';
+                            break;
+                        case 0:
+                            endpoint = '/login/api/reviews/remove/';
+                            break;
+                        default:
+                            throw new Error("Invalid review type");
+                    }
+
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ item_id: itemId })
+                    });
+
+                    if (response.ok) {
+                        if (currentView === 'bought') {
+                            await fetchBoughtItems(token);
+                        }
+                    } else {
+                        const result = await response.json();
+                        console.error("Failed to complete review action:", result.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            function leaveRefundRequest(itemId) {
+                window.location.href = `/login/pages/refund.php?item_id=${itemId}`;
+            }
+
+            function logout() {
+                localStorage.removeItem('token');
+                window.location.href = "/login/pages/login_page.php";
+            }
+        </script>
+    </head>
+    <body>
+        <div class="top-bar">
+            <div class="top-left">
+            </div>
+            <button onclick="logout()" class="btn btn-light logout-btn">Log Out</button>
+        </div>
+        <div class="main-container">
+            <div class="info-frame">
+                <div class="info-content">
+                </div>
+                <div class="button-group">
+                    <a href="#" class="btn btn-light">Show bought items</a>
+                    <a href="../pages/user_info.php?type=sell" class="btn btn-light">Show items you sell</a>
+                    <a href="../pages/user_info.php?type=sold" class="btn btn-light">Show items sold</a>
+                    <a href="../pages/user_info.php?type=refund" class="btn btn-light">Show refund applications</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="items-section">
+            <div class="items-container">
+            </div>
+        </div>
+    </body>
+</html>

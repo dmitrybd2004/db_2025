@@ -1,0 +1,7 @@
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+RewriteEngine On
+
+RewriteBase /login/api/lots/buy
+
+RewriteRule ^([0-9]+)/index$ index.php?id=$1 [QSA,L]

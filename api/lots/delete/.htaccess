@@ -1,0 +1,14 @@
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+RewriteEngine On
+
+RewriteBase /login/api/lots/delete/
+
+<Limit DELETE>
+    Allow from all
+</Limit>
+
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule .* index.php [L]
+</IfModule>
